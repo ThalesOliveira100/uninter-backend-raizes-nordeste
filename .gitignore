@@ -4,3 +4,5 @@ dist/
 .db
 .db-journal
 .env
+dev.db
+dev.db-journal

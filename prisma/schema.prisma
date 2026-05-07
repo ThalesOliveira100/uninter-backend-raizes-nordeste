@@ -1,13 +1,87 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider    = "prisma-client"
+  output      = "../generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider    = "sqlite"
+  url         = "file:./dev.db"
+}
+
+model Unidade {
+  id          Int   @id   @default(autoincrement())
+  nome        String
+  endereco    String
+
+  estoques    Estoque[]
+  pedidos     Pedido[]
+}
+
+model Usuario {
+  id          Int   @id   @default(autoincrement())
+  nome        String
+  email       String  @unique
+  senha_hash  String
+  perfil      String
+  pontos_fidelidade Int @default(0)
+
+  pedidos_cliente   Pedido[] @relation("ClientePedidos")
+  pedidos_atendente Pedido[]  @relation("AtendentePedidos")
+}
+
+model Produto {
+  id          Int   @id   @default(autoincrement())
+  nome        String
+  descricao   String?
+  preco_base  Decimal
+
+  estoques    Estoque[]
+  itens       ItemPedido[]
+}
+
+model Estoque {
+  id          Int   @id   @default(autoincrement())
+  quantidade  Int
+  
+  unidade_id  Int
+  unidade     Unidade @relation(fields: [unidade_id], references: [id])
+
+  produto_id  Int
+  produto     Produto @relation(fields: [produto_id], references: [id])
+}
+
+model Pedido {
+  id                Int   @id   @default(autoincrement())
+  status            String
+  canalPedido       String
+  total             Decimal
+  total_desconto    Decimal
+  data_criacao      DateTime  @default(now())
+  data_alteracao    DateTime @updatedAt
+  data_cancelamento DateTime?
+
+  cliente_id        Int
+  cliente           Usuario @relation("ClientePedidos", fields: [cliente_id], references: [id])
+
+  atendente_id      Int?
+  atendente         Usuario? @relation("AtendentePedidos", fields: [atendente_id], references: [id])
+
+  unidade_id        Int
+  unidade           Unidade @relation(fields: [unidade_id], references: [id])
+
+  itens             ItemPedido[]
+}
+
+model ItemPedido {
+  id                Int   @id   @default(autoincrement())
+  quantidade        Int
+  preco_unitario    Decimal
+  preco_desconto    Decimal?
+
+  pedido_id         Int
+  pedido            Pedido  @relation(fields: [pedido_id], references: [id])
+
+  produto_id        Int
+  produto           Produto @relation(fields: [produto_id], references: [id])
+
 }

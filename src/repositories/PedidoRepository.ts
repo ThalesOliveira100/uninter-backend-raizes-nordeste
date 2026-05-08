@@ -33,4 +33,26 @@ export class PedidoRepository {
             },
         });
     };
+
+    async buscarPorId(id: number) {
+        return await prisma.pedido.findUnique({
+            where: { id }
+        });
+    };
+
+    async atualizarStatus(id: number, status: string) {
+        return await prisma.pedido.update({
+            where: { id },
+            data: { status },
+            select: {
+                id: true,
+                status: true,
+                canalPedido: true,
+                total: true,
+                data_criacao: true,
+                cliente_id: true,
+                unidade_id: true,
+            }
+        })
+    }
 };

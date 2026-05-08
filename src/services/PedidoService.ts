@@ -1,3 +1,4 @@
+import { ErrorStatusInvalido } from './../errors/ErrorStatusInvalido';
 import { CanalPedido } from "../enums/CanalPedido";
 import { StatusPedido } from "../enums/StatusPedido";
 import { PedidoRepository } from "../repositories/PedidoRepository";
@@ -8,7 +9,8 @@ import { ErrorDadosIncompletos } from "../errors/ErrorDadosIncompletos";
 import { ErrorAtendenteObrigatorio } from "../errors/ErrorAtendenteObrigatorio";
 import { PerfilUsuario } from "../enums/PerfilUsuario";
 import { ErrorAtendenteInvalido } from "../errors/ErrorAtendenteInvalido";
-import { ErrorProdutoInvalido } from "../errors/ErrorProdutoInvalido";
+import { ErrorUsuarioSemPermissaoParaAlterarStatus } from '../errors/ErrorUsuarioSemPermissaoParaAlterarStatus';
+import { ErrorNotFound } from '../errors/ErrorNotFound';
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
@@ -21,7 +23,7 @@ export class PedidoService {
         this.produtoRepository = new ProdutoRepository();
     }
 
-    async executar(dados: any) {
+    async criar(dados: any) {
         const { canalPedido, cliente_id, unidade_id, atendente_id, itens } = dados;
 
         this.validarCanalPedido(canalPedido);
@@ -43,7 +45,36 @@ export class PedidoService {
             itens: { create: totais.itensFormatados }
         };
 
+        console.log(`[AUDITORIA] - O cliente de id ${cliente_id} criou um pedido no ${canalPedido}!`);
+
         return await this.pedidoRepository.criar(novoPedido);
+    };
+
+    async atualizarStatus(dados: any) {
+        const { pedido_id, novo_status, usuario_id } = dados;
+
+        if (!pedido_id || !novo_status || !usuario_id) {
+            throw new ErrorDadosIncompletos([
+                { field: "pedido_id, novo_status, usuario_id", issue: "Ausentes" }
+            ]);
+        };
+
+        if (!Object.values(StatusPedido).includes(novo_status)) {
+            throw new ErrorStatusInvalido(novo_status);
+        };
+
+        await this.validarPerfilComPermissaoParaAlterarStatus(Number(usuario_id));
+        const pedido = await this.pedidoRepository.buscarPorId(Number(pedido_id));
+
+        if (!pedido) {
+            throw new ErrorNotFound("pedido", pedido_id);
+        };
+
+        const pedidoAtualizado = await this.pedidoRepository.atualizarStatus(Number(pedido_id), novo_status as StatusPedido);
+
+        console.log(`[AUDITORIA] - O usuário de id ${usuario_id} atualizou o status do pedido ${pedido_id} para ${novo_status}!`);
+
+        return pedidoAtualizado;
     };
 
     private validarCanalPedido(canalPedido: any): void {
@@ -68,7 +99,7 @@ export class PedidoService {
             const produto = await this.produtoRepository.buscarPorId(Number(item.produto_id));
 
             if (!produto) {
-                throw new ErrorProdutoInvalido(item.produto_id);
+                throw new ErrorNotFound("produto", item.produto_id);
             };
 
             return { item, produto}
@@ -115,6 +146,19 @@ export class PedidoService {
             if (!atendente || atendente.perfil !== PerfilUsuario.ATENDENTE) {
                 throw new ErrorAtendenteInvalido(atendente_id);
             };
+        };
+    };
+
+    private async validarPerfilComPermissaoParaAlterarStatus(usuario_id: any): Promise<void> {
+        const usuario = await this.usuarioRepository.buscarPorId(Number(usuario_id));
+        const perfisPermitidos = [PerfilUsuario.COZINHA, PerfilUsuario.ATENDENTE, PerfilUsuario.GERENTE];
+
+        if (!usuario) {
+            throw new ErrorNotFound("usuario", usuario_id);
+        };
+
+        if (!perfisPermitidos.includes(usuario.perfil as PerfilUsuario)) {
+            throw new ErrorUsuarioSemPermissaoParaAlterarStatus(usuario_id);
         };
     };
 }

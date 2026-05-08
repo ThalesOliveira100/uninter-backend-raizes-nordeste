@@ -11,9 +11,10 @@ app.get('/api/ping', (req, res) => {
 
 const pedidoController = new PedidoController();
 app.post('/api/pedidos', pedidoController.criar.bind(pedidoController));
+app.patch('/api/pedidos/:id/status', pedidoController.atualizarStatus.bind(pedidoController));
 
 
-const PORT = 3000;
+const PORT = 3000; // Usar o dotenv depois.
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

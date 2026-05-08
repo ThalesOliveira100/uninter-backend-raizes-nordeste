@@ -1,14 +1,14 @@
-import { CanalPedido } from "./enums/CanalPedido";
-import { StatusPedido } from "./enums/StatusPedido";
-import { PedidoRepository } from "./repositories/PedidoRepository";
-import { UsuarioRepository } from "./repositories/UsuarioRepository";
-import { ProdutoRepository } from "./repositories/ProdutoRepository";
-import { ErrorCanalInvalido } from "./errors/ErrorCanalInvalido";
-import { ErrorDadosIncompletos } from "./errors/ErrorDadosIncompletos";
-import { ErrorAtendenteObrigatorio } from "./errors/ErrorAtendenteObrigatorio";
-import { PerfilUsuario } from "./enums/PerfilUsuario";
-import { ErrorAtendenteInvalido } from "./errors/ErrorAtendenteInvalido";
-import { ErrorProdutoInvalido } from "./errors/ErrorProdutoInvalido";
+import { CanalPedido } from "../enums/CanalPedido";
+import { StatusPedido } from "../enums/StatusPedido";
+import { PedidoRepository } from "../repositories/PedidoRepository";
+import { UsuarioRepository } from "../repositories/UsuarioRepository";
+import { ProdutoRepository } from "../repositories/ProdutoRepository";
+import { ErrorCanalInvalido } from "../errors/ErrorCanalInvalido";
+import { ErrorDadosIncompletos } from "../errors/ErrorDadosIncompletos";
+import { ErrorAtendenteObrigatorio } from "../errors/ErrorAtendenteObrigatorio";
+import { PerfilUsuario } from "../enums/PerfilUsuario";
+import { ErrorAtendenteInvalido } from "../errors/ErrorAtendenteInvalido";
+import { ErrorProdutoInvalido } from "../errors/ErrorProdutoInvalido";
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;

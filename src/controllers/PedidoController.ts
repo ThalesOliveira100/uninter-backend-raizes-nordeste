@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PedidoService } from '../PedidoService';
+import { PedidoService } from '../services/PedidoService';
 import { AppError } from '../errors/AppError';
 
 export class PedidoController {

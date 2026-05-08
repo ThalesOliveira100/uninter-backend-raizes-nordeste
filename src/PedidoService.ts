@@ -1,23 +1,35 @@
 import { CanalPedido } from "./enums/CanalPedido";
 import { StatusPedido } from "./enums/StatusPedido";
 import { PedidoRepository } from "./repositories/PedidoRepository";
+import { UsuarioRepository } from "./repositories/UsuarioRepository";
+import { ProdutoRepository } from "./repositories/ProdutoRepository";
 import { ErrorCanalInvalido } from "./errors/ErrorCanalInvalido";
 import { ErrorDadosIncompletos } from "./errors/ErrorDadosIncompletos";
+import { ErrorAtendenteObrigatorio } from "./errors/ErrorAtendenteObrigatorio";
+import { PerfilUsuario } from "./enums/PerfilUsuario";
+import { ErrorAtendenteInvalido } from "./errors/ErrorAtendenteInvalido";
+import { ErrorProdutoInvalido } from "./errors/ErrorProdutoInvalido";
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
+    private usuarioRepository: UsuarioRepository;
+    private produtoRepository: ProdutoRepository;
 
     constructor() {
         this.pedidoRepository = new PedidoRepository();
+        this.usuarioRepository = new UsuarioRepository();
+        this.produtoRepository = new ProdutoRepository();
     }
 
     async executar(dados: any) {
-        const { canalPedido, cliente_id, unidade_id, itens } = dados;
+        const { canalPedido, cliente_id, unidade_id, atendente_id, itens } = dados;
 
         this.validarCanalPedido(canalPedido);
         this.validarDadosIncompletos(cliente_id, unidade_id, itens);
+        await this.validarAtendente(canalPedido as CanalPedido, atendente_id);
 
-        const totais = this.calcularTotaisEFormatarItens(itens);
+        const produtosComItens = await this.buscarEValidarProdutos(itens);
+        const totais = this.calcularTotaisEFormatarItens(produtosComItens);
         
         // Registro do novo pedido
         const novoPedido = {
@@ -27,6 +39,7 @@ export class PedidoService {
             total_desconto: totais.valorTotalDesconto,
             cliente_id,
             unidade_id,
+            atendente_id: atendente_id || null,
             itens: { create: totais.itensFormatados }
         };
 
@@ -50,21 +63,34 @@ export class PedidoService {
         };
     };
 
-    private calcularTotaisEFormatarItens(itens: any[]) {
+    private async buscarEValidarProdutos(itens: any[]) {
+        const promessas = itens.map(async (item) => {
+            const produto = await this.produtoRepository.buscarPorId(Number(item.produto_id));
+
+            if (!produto) {
+                throw new ErrorProdutoInvalido(item.produto_id);
+            };
+
+            return { item, produto}
+        });
+        return await Promise.all(promessas);
+    }
+
+    private calcularTotaisEFormatarItens(produtosComItens: any[]) {
         let valorSubTotal = 0;
         let valorTotalDesconto = 0;
 
-        const itensFormatados = itens.map((item: any) => {
-            const desconto = item.preco_desconto || 0;
-            const subTotalItem = item.quantidade * item.preco_unitario;
+        const itensFormatados = produtosComItens.map(({ item, produto }) => {
+            const precoUnitarioReal = Number(produto.preco_base);
+            const desconto = item.preco_desconto ? Number(item.preco_desconto) : 0;
 
-            valorSubTotal += subTotalItem;
+            valorSubTotal += (item.quantidade * precoUnitarioReal);
             valorTotalDesconto += desconto;
 
             return {
                 produto_id: item.produto_id,
                 quantidade: item.quantidade,
-                preco_unitario: item.preco_unitario,
+                preco_unitario: precoUnitarioReal,
                 preco_desconto: desconto > 0 ? desconto : null
             };
         });
@@ -73,6 +99,22 @@ export class PedidoService {
             valorTotalFinal: valorSubTotal - valorTotalDesconto,
             valorTotalDesconto,
             itensFormatados
+        };
+    };
+
+    private async validarAtendente(canalPedido: CanalPedido, atendente_id: any): Promise<void> {
+        const canaisComAtendente = [CanalPedido.BALCAO, CanalPedido.PICKUP];
+
+        if (canaisComAtendente.includes(canalPedido)) {
+            if (!atendente_id) {
+                throw new ErrorAtendenteObrigatorio(canalPedido);
+            };
+
+            const atendente = await this.usuarioRepository.buscarPorId(Number(atendente_id));
+
+            if (!atendente || atendente.perfil !== PerfilUsuario.ATENDENTE) {
+                throw new ErrorAtendenteInvalido(atendente_id);
+            };
         };
     };
 }

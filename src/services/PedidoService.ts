@@ -13,6 +13,8 @@ import { ErrorUsuarioSemPermissaoParaAlterarStatus } from '../errors/ErrorUsuari
 import { ErrorNotFound } from '../errors/ErrorNotFound';
 import { UnidadeRepository } from '../repositories/UnidadeRepository';
 import { ErrorDescontoInvalido } from '../errors/ErrorDescontoInvalido';
+import { AuditoriaService } from './AuditoriaService';
+import { AcaoAuditoria } from '../enums/AcaoAuditoria';
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
@@ -28,6 +30,7 @@ export class PedidoService {
     }
 
     async criar(dados: any) {
+        const auditoriaService = new AuditoriaService();
         this.validarDadosIncompletos(dados);
         const { canalPedido, cliente_id, unidade_id, atendente_id, itens } = dados;
 
@@ -37,7 +40,7 @@ export class PedidoService {
 
         const produtosComItens = await this.buscarEValidarProdutos(itens);
         const totais = this.calcularTotaisEFormatarItens(produtosComItens);
-        
+
         // Registro do novo pedido
         const novoPedido = {
             canalPedido: canalPedido as CanalPedido,
@@ -50,13 +53,20 @@ export class PedidoService {
             itens: { create: totais.itensFormatados }
         };
 
-        console.log(`[AUDITORIA] - O cliente de id ${cliente_id} criou um pedido no ${canalPedido}!`);
+        const pedidoCriado = await this.pedidoRepository.criar(novoPedido)
 
-        return await this.pedidoRepository.criar(novoPedido);
+        await auditoriaService.registrar(
+            dados.usuario_logado,
+            AcaoAuditoria.CRIAR_PEDIDO,
+            `Usuário ${dados.usuario_logado} (${dados.usuario_perfil}) criou o pedido ID ${pedidoCriado.id} via ${pedidoCriado.canalPedido}`
+        );
+
+        return pedidoCriado;
     };
 
     async atualizarStatus(dados: any) {
         const { pedido_id, novo_status, usuario_id } = dados;
+        const auditoriaService = new AuditoriaService();
 
         if (!pedido_id || !novo_status || !usuario_id) {
             throw new ErrorDadosIncompletos([
@@ -77,7 +87,11 @@ export class PedidoService {
 
         const pedidoAtualizado = await this.pedidoRepository.atualizarStatus(Number(pedido_id), novo_status as StatusPedido);
 
-        console.log(`[AUDITORIA] - O usuário de id ${usuario_id} atualizou o status do pedido ${pedido_id} para ${novo_status}!`);
+        await auditoriaService.registrar(
+            usuario_id,
+            AcaoAuditoria.ATUALIZAR_STATUS,
+            `O usuário ${usuario_id} (${dados.usuario_perfil}) atualizou o status do pedido ${pedido_id} para ${novo_status}`
+        );
 
         return pedidoAtualizado;
     };
@@ -125,16 +139,16 @@ export class PedidoService {
         } else {
             itens.forEach((item: any, index: number) => {
                 if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
-                    detalhesErro.push({ 
-                        field: `itens[${index}].quantidade`, 
-                        issue: "A quantidade deve ser um número inteiro e maior que zero." 
+                    detalhesErro.push({
+                        field: `itens[${index}].quantidade`,
+                        issue: "A quantidade deve ser um número inteiro e maior que zero."
                     });
                 };
             });
         };
 
         if (detalhesErro.length > 0) {
-            throw new ErrorDadosIncompletos(detalhesErro); 
+            throw new ErrorDadosIncompletos(detalhesErro);
         };
     };
 
@@ -146,7 +160,7 @@ export class PedidoService {
                 throw new ErrorNotFound("produto", item.produto_id);
             };
 
-            return { item, produto}
+            return { item, produto }
         });
         return await Promise.all(promessas);
     }
@@ -173,7 +187,7 @@ export class PedidoService {
         if (valorTotalDesconto >= valorSubTotal) {
             throw new ErrorDescontoInvalido(valorTotalDesconto, valorSubTotal);
         };
-        
+
         return {
             valorTotalFinal: valorSubTotal - valorTotalDesconto,
             valorTotalDesconto,

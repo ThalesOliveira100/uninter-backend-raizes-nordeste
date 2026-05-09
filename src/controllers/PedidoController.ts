@@ -5,7 +5,12 @@ export class PedidoController {
     async criar(req: Request, res: Response, next: NextFunction) {
         try {
             const pedidoService = new PedidoService();
-            const novoPedido = await pedidoService.criar(req.body);
+            const dadosNovoPedido = { 
+                ...req.body, 
+                usuario_logado: req.usuario.id,
+                usuario_perfil: req.usuario.perfil 
+            }
+            const novoPedido = await pedidoService.criar(dadosNovoPedido);
 
             return res.status(201).json(novoPedido);
 
@@ -18,9 +23,10 @@ export class PedidoController {
         try {
             const { id } = req.params;
             const { novo_status } = req.body;
-            const usuario_id = (req as any).usuario.id;
+            const usuario_id = req.usuario.id;
+            const usuario_perfil = req.usuario.perfil;
             
-            const dados = { pedido_id: Number(id), novo_status, usuario_id };
+            const dados = { pedido_id: Number(id), novo_status, usuario_id, usuario_perfil };
 
             const pedidoService = new PedidoService();
             const pedidoAtualizado = await pedidoService.atualizarStatus(dados);

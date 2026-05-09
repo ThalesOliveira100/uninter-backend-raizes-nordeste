@@ -3,12 +3,16 @@ import { ErrorPagamentoRecusado } from "../errors/ErrorPagamentoRecusado";
 import { ErrorNotFound } from "../errors/ErrorNotFound";
 import { StatusPedido } from "../enums/StatusPedido";
 import { ErrorOperacaoInvalidaParaStatus } from "../errors/ErrorOperacaoInvalidaParaStatus";
+import { AuditoriaService } from "./AuditoriaService";
+import { AcaoAuditoria } from "../enums/AcaoAuditoria";
 
 const prisma = new PrismaClient();
 
 export class PagamentoMockService {
     async processarPagamento(dados: any) {
-        const { pedido_id, forma_pagamento } = dados;
+        const { pedido_id, forma_pagamento, usuario_id } = dados;
+        const auditoriaService = new AuditoriaService();
+
         const pedido = await prisma.pedido.findUnique({
             where: { id: pedido_id }
         });
@@ -29,6 +33,12 @@ export class PagamentoMockService {
                 where: { id: Number(pedido_id) },
                 data: { status: StatusPedido.PREPARANDO }
             });
+            
+            await auditoriaService.registrar(
+                usuario_id,
+                AcaoAuditoria.ATUALIZAR_STATUS,
+                `Status do pedido ${pedido_id} alterado para ${StatusPedido.PREPARANDO} via Pagamento Mock`
+            );
 
             return {
                 statusGateway: "APROVADO",

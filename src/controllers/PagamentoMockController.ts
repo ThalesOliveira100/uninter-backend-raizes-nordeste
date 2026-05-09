@@ -5,7 +5,13 @@ export class PagamentoMockController {
     async pagar(req: Request, res: Response, next: NextFunction) {
         try {
             const pagamentoService = new PagamentoMockService();
-            const resultado = await pagamentoService.processarPagamento(req.body);
+
+            const dadosPagamento = {
+                ...req.body,
+                usuario_id: req.usuario.id
+            };
+
+            const resultado = await pagamentoService.processarPagamento(dadosPagamento);
 
             return res.status(200).json(resultado);
             

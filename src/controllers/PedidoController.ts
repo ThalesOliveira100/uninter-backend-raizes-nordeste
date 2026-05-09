@@ -33,7 +33,9 @@ export class PedidoController {
     async atualizarStatus(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { novo_status, usuario_id } = req.body;
+            const { novo_status } = req.body;
+            const usuario_id = (req as any).usuario.id;
+            
             const dados = { pedido_id: Number(id), novo_status, usuario_id };
 
             const pedidoService = new PedidoService();

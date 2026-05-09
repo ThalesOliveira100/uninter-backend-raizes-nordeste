@@ -55,4 +55,8 @@ export class PedidoRepository {
             }
         })
     }
+
+    async obterTodos() {
+        return await prisma.pedido.findMany();
+    };
 };

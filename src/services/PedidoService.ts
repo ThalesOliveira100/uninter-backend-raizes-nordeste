@@ -77,6 +77,10 @@ export class PedidoService {
         return pedidoAtualizado;
     };
 
+    async obterTodos() {
+        return await this.pedidoRepository.obterTodos();
+    };
+
     private validarCanalPedido(canalPedido: any): void {
         if (!Object.values(CanalPedido).includes(canalPedido)) {
             throw new ErrorCanalInvalido(canalPedido);

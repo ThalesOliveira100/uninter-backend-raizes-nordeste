@@ -61,4 +61,32 @@ export class PedidoController {
             });
         };
     };
+
+    async obterTodos(req: Request, res: Response) {
+        try {
+            const pedidoService = new PedidoService();
+            const pedidos = await pedidoService.obterTodos();
+            
+            res.status(200).json(pedidos);
+            
+        } catch (error: any) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json({
+                    error: error.errorCode,
+                    message: error.message,
+                    details: error.details,
+                    timestamp: new Date().toISOString(),
+                    path: req.originalUrl
+                });
+            };
+
+            return res.status(500).json({
+                error: "ERRO_INTERNO",
+                message: "Falha ao atualizar o status do pedido no banco de dados.",
+                details: error.message,
+                timestamp: new Date().toISOString(),
+                path: req.originalUrl
+            });
+        };
+    };
 };

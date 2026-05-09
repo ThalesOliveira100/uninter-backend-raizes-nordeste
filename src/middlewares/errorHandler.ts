@@ -15,7 +15,7 @@ export function errorHandler(
             timestamp: new Date().toISOString(),
             path: req.originalUrl
         });
-    }
+    };
 
     console.error(err);
     return res.status(500).json({
@@ -24,4 +24,4 @@ export function errorHandler(
         timestamp: new Date().toISOString(),
         path: req.originalUrl
     });
-}
+};

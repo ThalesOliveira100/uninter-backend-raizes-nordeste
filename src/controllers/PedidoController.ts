@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { PedidoService } from '../services/PedidoService';
 import { AppError } from '../errors/AppError';
 
@@ -30,7 +30,7 @@ export class PedidoController {
         }
     }
 
-    async atualizarStatus(req: Request, res: Response) {
+    async atualizarStatus(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
             const { novo_status, usuario_id } = req.body;
@@ -42,27 +42,11 @@ export class PedidoController {
             return res.status(200).json(pedidoAtualizado);
 
         } catch (error: any) {
-            if (error instanceof AppError) {
-                return res.status(error.statusCode).json({
-                    error: error.errorCode,
-                    message: error.message,
-                    details: error.details,
-                    timestamp: new Date().toISOString(),
-                    path: req.originalUrl
-                });
-            };
-
-            return res.status(500).json({
-                error: "ERRO_INTERNO",
-                message: "Falha ao atualizar o status do pedido no banco de dados.",
-                details: error.message,
-                timestamp: new Date().toISOString(),
-                path: req.originalUrl
-            });
+            next(error);
         };
     };
 
-    async obterTodos(req: Request, res: Response) {
+    async obterTodos(req: Request, res: Response, next: NextFunction) {
         try {
             const pedidoService = new PedidoService();
             const pedidos = await pedidoService.obterTodos();
@@ -70,23 +54,7 @@ export class PedidoController {
             res.status(200).json(pedidos);
             
         } catch (error: any) {
-            if (error instanceof AppError) {
-                return res.status(error.statusCode).json({
-                    error: error.errorCode,
-                    message: error.message,
-                    details: error.details,
-                    timestamp: new Date().toISOString(),
-                    path: req.originalUrl
-                });
-            };
-
-            return res.status(500).json({
-                error: "ERRO_INTERNO",
-                message: "Falha ao atualizar o status do pedido no banco de dados.",
-                details: error.message,
-                timestamp: new Date().toISOString(),
-                path: req.originalUrl
-            });
+            next(error);
         };
     };
 };

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PerfilUsuario } from "./enums/PerfilUsuario";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
@@ -10,40 +11,48 @@ async function main() {
         }
     });
 
+    const senhasCriptografadas = [
+        await bcrypt.hash('hash123', 10),
+        await bcrypt.hash('cli123', 10),
+        await bcrypt.hash('caixa123', 10),
+        await bcrypt.hash('cozinha123', 10),
+        await bcrypt.hash('gerencia123', 10),
+    ];
+
     const usuariosInseridos = await prisma.usuario.createMany({
         data: [
             {
                 nome: "Thales Oliveira",
                 email: "thales@uninter.com",
-                senha_hash: "hash123",
+                senha_hash: senhasCriptografadas[0],
                 perfil: PerfilUsuario.CLIENTE
             },
             {
                 nome: "Usuario Cliente",
                 email: "cliente@email.com",
-                senha_hash: "cli123",
+                senha_hash: senhasCriptografadas[1],
                 perfil: PerfilUsuario.CLIENTE
             },
             {
                 nome: "Atendente Caixa",
                 email: "caixa@raizes.com",
-                senha_hash: "caixa123",
+                senha_hash: senhasCriptografadas[2],
                 perfil: PerfilUsuario.ATENDENTE
             },
             {
                 nome: "Cozinha",
                 email: "cozinha@raizes.com",
-                senha_hash: "cozinha123",
+                senha_hash: senhasCriptografadas[3],
                 perfil: PerfilUsuario.COZINHA
             },
             {
                 nome: "Gerencia",
                 email: "gerencia@raizes.com",
-                senha_hash: "gerencia123",
+                senha_hash: senhasCriptografadas[4],
                 perfil: PerfilUsuario.GERENTE
             }
         ]
-    })
+    });
 
     const produtoInseridos = await prisma.produto.createMany({
         data: [

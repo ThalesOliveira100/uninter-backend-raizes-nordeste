@@ -27,9 +27,7 @@ export class AuthService {
 
         const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
 
-        // *Gambiara de testes*: Como nossa seed atual inseriu senhas sem hash (ex: "hash123"), 
-        // deixamos uma validação temporária para o texto puro também. Futuramente ajustaremos a seed!
-        if (!senhaValida && senha !== usuario.senha_hash) {
+        if (!senhaValida) {
             throw new ErrorCredenciaisInvalidas();
         };
 

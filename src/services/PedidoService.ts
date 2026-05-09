@@ -11,23 +11,28 @@ import { PerfilUsuario } from "../enums/PerfilUsuario";
 import { ErrorAtendenteInvalido } from "../errors/ErrorAtendenteInvalido";
 import { ErrorUsuarioSemPermissaoParaAlterarStatus } from '../errors/ErrorUsuarioSemPermissaoParaAlterarStatus';
 import { ErrorNotFound } from '../errors/ErrorNotFound';
+import { UnidadeRepository } from '../repositories/UnidadeRepository';
+import { ErrorDescontoInvalido } from '../errors/ErrorDescontoInvalido';
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
     private usuarioRepository: UsuarioRepository;
     private produtoRepository: ProdutoRepository;
+    private unidadeRepository: UnidadeRepository;
 
     constructor() {
         this.pedidoRepository = new PedidoRepository();
         this.usuarioRepository = new UsuarioRepository();
         this.produtoRepository = new ProdutoRepository();
+        this.unidadeRepository = new UnidadeRepository();
     }
 
     async criar(dados: any) {
+        this.validarDadosIncompletos(dados);
         const { canalPedido, cliente_id, unidade_id, atendente_id, itens } = dados;
 
         this.validarCanalPedido(canalPedido);
-        this.validarDadosIncompletos(cliente_id, unidade_id, itens);
+        await this.validarExistenciaNoBanco(cliente_id, unidade_id);
         await this.validarAtendente(canalPedido as CanalPedido, atendente_id);
 
         const produtosComItens = await this.buscarEValidarProdutos(itens);
@@ -87,14 +92,49 @@ export class PedidoService {
         };
     };
 
-    private validarDadosIncompletos(cliente_id: any, unidade_id: any, itens: any[]): void {
-        if (!cliente_id || !unidade_id || !Array.isArray(itens) || itens.length === 0) {
-            const errorDetails = [
-                    { field: "cliente_id", issue: cliente_id ? "OK" : "Ausente" },
-                    { field: "unidade_id", issue: unidade_id ? "OK" : "Ausente" },
-                    { field: "itens", issue: Array.isArray(itens) && itens.length > 0 ? "OK" : "Ausente ou vazio" }
-                ]
-            throw new ErrorDadosIncompletos(errorDetails);
+    private async validarExistenciaNoBanco(cliente_id: number, unidade_id: number): Promise<void> {
+        const [cliente, unidade] = await Promise.all([
+            this.usuarioRepository.buscarPorId(cliente_id),
+            this.unidadeRepository.buscarPorId(unidade_id)
+        ]);
+
+        if (!cliente) {
+            throw new ErrorNotFound("cliente", String(cliente_id));
+        }
+
+        if (!unidade) {
+            throw new ErrorNotFound("unidade", String(unidade_id));
+        }
+    }
+
+    private validarDadosIncompletos(dados: any): void {
+        const { canalPedido, cliente_id, unidade_id, itens } = dados;
+        const detalhesErro = [];
+
+        if (!canalPedido) {
+            detalhesErro.push({ field: "canalPedido", issue: "Ausente ou em branco" });
+        };
+        if (!cliente_id) {
+            detalhesErro.push({ field: "cliente_id", issue: "Ausente ou em branco" });
+        };
+        if (!unidade_id) {
+            detalhesErro.push({ field: "unidade_id", issue: "Ausente ou em branco" });
+        };
+        if (!itens || itens.length === 0) {
+            detalhesErro.push({ field: "itens", issue: "O pedido precisa ter pelo menos um item" });
+        } else {
+            itens.forEach((item: any, index: number) => {
+                if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+                    detalhesErro.push({ 
+                        field: `itens[${index}].quantidade`, 
+                        issue: "A quantidade deve ser um número inteiro e maior que zero." 
+                    });
+                };
+            });
+        };
+
+        if (detalhesErro.length > 0) {
+            throw new ErrorDadosIncompletos(detalhesErro); 
         };
     };
 
@@ -117,19 +157,23 @@ export class PedidoService {
 
         const itensFormatados = produtosComItens.map(({ item, produto }) => {
             const precoUnitarioReal = Number(produto.preco_base);
-            const desconto = item.preco_desconto ? Number(item.preco_desconto) : 0;
+            const descontoUnitario = item.preco_desconto ? Number(item.preco_desconto) : 0;
 
             valorSubTotal += (item.quantidade * precoUnitarioReal);
-            valorTotalDesconto += desconto;
+            valorTotalDesconto += (descontoUnitario * item.quantidade);
 
             return {
                 produto_id: item.produto_id,
                 quantidade: item.quantidade,
                 preco_unitario: precoUnitarioReal,
-                preco_desconto: desconto > 0 ? desconto : null
+                preco_desconto: descontoUnitario > 0 ? descontoUnitario : null
             };
         });
 
+        if (valorTotalDesconto >= valorSubTotal) {
+            throw new ErrorDescontoInvalido(valorTotalDesconto, valorSubTotal);
+        };
+        
         return {
             valorTotalFinal: valorSubTotal - valorTotalDesconto,
             valorTotalDesconto,

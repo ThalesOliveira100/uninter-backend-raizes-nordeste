@@ -8,4 +8,10 @@ export class UsuarioRepository {
             where: { id }
         });
     };
+
+    async buscarPorEmail(email: string) {
+        return await prisma.usuario.findUnique({
+            where: { email }
+        });
+    };
 };

@@ -26,6 +26,7 @@ model Usuario {
 
   pedidos_cliente   Pedido[] @relation("ClientePedidos")
   pedidos_atendente Pedido[]  @relation("AtendentePedidos")
+  logs              LogAuditoria[]
 }
 
 model Produto {
@@ -83,4 +84,14 @@ model ItemPedido {
   produto_id        Int
   produto           Produto @relation(fields: [produto_id], references: [id])
 
+}
+
+model LogAuditoria {
+  id                Int   @id   @default(autoincrement())
+  usuario_id        Int
+  acao              String
+  detalhes          String?
+  data              DateTime  @default(now())
+
+  usuario           Usuario   @relation(fields: [usuario_id], references: [id])
 }

@@ -192,6 +192,29 @@
           "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
         }
       }
+    },
+     "/estoque": {
+      "get": {
+        "tags": ["Estoque"],
+        "summary": "Consultar Estoque/Cardápio por Unidade",
+        "description": "Retorna os produtos disponíveis (quantidade > 0) em uma unidade específica.",
+        "parameters": [
+          {
+            "name": "unidade_id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 },
+            "description": "ID da unidade para consultar o cardápio local."
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de produtos e quantidades disponíveis na unidade." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação." },
+          "403": { "description": "Acesso negado (apenas gerente)." },
+          "422": { "description": "Dados obrigatórios ausentes." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
     }
   }
 }

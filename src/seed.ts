@@ -4,11 +4,17 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-    const unidade = await prisma.unidade.create({
-        data: {
-            nome: "Unidade Matriz",
-            endereco: "Rua do Cuscuz, 123"
-        }
+    const unidades = await prisma.unidade.createMany({
+        data: [
+            {
+                nome: "Unidade Matriz",
+                endereco: "Rua do Cuscuz, 123"
+            },
+            {
+                nome: "Filial Pedro Leopoldo",
+                endereco: "Avenida Comendador Antônio Alves, 123"
+            }
+        ]
     });
 
     const senhasCriptografadas = [
@@ -74,10 +80,24 @@ async function main() {
         ]
     });
 
+    await prisma.estoque.createMany({
+        data: [
+            // --- Estoque da Unidade 1 ---
+            { unidade_id: 1, produto_id: 1, quantidade: 50 },
+            { unidade_id: 1, produto_id: 2, quantidade: 30 },
+            { unidade_id: 1, produto_id: 3, quantidade: 0 },
+
+            // --- Estoque da Unidade 2 ---
+            { unidade_id: 2, produto_id: 1, quantidade: 15 },
+            { unidade_id: 2, produto_id: 2, quantidade: 25 },
+            { unidade_id: 2, produto_id: 3, quantidade: 10 },
+        ]
+    });
+
     console.log(
         `
         Seed finalizada. 
-        Foram adicionadas ${unidade.id} unidades, ${produtoInseridos.count} produtos e ${usuariosInseridos.count} usuários.
+        Foram adicionadas ${unidades.count} unidades, ${produtoInseridos.count} produtos e ${usuariosInseridos.count} usuários.
         Usuários de ID 1 e 2: CLIENTE
         Usuário de ID 3: ATENDENTE
         Usuário de ID 4: COZINHA

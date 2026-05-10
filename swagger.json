@@ -1,0 +1,197 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Raízes do Nordeste",
+    "version": "1.0.0",
+    "description": "Documentação da API para o fluxo de pedidos, pagamentos e auditoria da rede Raízes do Nordeste."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Servidor Local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Realizar Login",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "cliente@email.com" },
+                  "senha": { "type": "string", "example": "cli123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login realizado com sucesso. Retorna o Token JWT." },
+          "401": { "description": "Credenciais inválidas." },
+          "422": { "description": "Dados obrigatórios ausentes." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "tags": ["Pedidos"],
+        "summary": "Criar um novo pedido",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "canalPedido": { "type": "string", "example": "APP" },
+                  "cliente_id": { "type": "integer", "example": 1 },
+                  "unidade_id": { "type": "integer", "example": 1 },
+                  "itens": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "produtoId": { "type": "integer", "example": 2 },
+                        "quantidade": { "type": "integer", "example": 2 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Pedido criado com sucesso." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação" },
+          "422": { "description": "Erro de validação (ex: canalPedido ausente)." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      },
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Consultar Todos os Pedidos",
+        "description": "Retorna a lista de todos os pedidos da rede. Acesso restrito a Gerentes.",
+        "parameters": [
+          {
+            "name": "canalPedido",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "TOTEM" },
+            "description": "Filtra os pedidos pelo canal de origem."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "AGUARDANDO_PAGAMENTO" },
+            "description": "Filtra os pedidos pelo status atual."
+          }
+        ],
+        "responses": {
+          "200": { "description": "Detalhes do pedido." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação" },
+          "403": { "description": "Acesso negado (cliente ou funcionário não gerente tentando visualizar)." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
+    },
+    "/pedidos/{id}": {
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Consultar Pedido por ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Detalhes do pedido." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação" },
+          "403": { "description": "Acesso negado (cliente tentando ver pedido de outro)." },
+          "404": { "description": "Pedido não encontrado." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
+    },
+    "/pagamentos": {
+      "post": {
+        "tags": ["Pagamentos"],
+        "summary": "Processar Pagamento (Mock)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pedido_id": { "type": "integer", "example": 1 },
+                  "forma_pagamento": { "type": "string", "example": "PIX" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pagamento aprovado. Status alterado para PREPARANDO." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação" },
+          "402": { "description": "Pagamento recusado pelo Mock." },
+          "404": { "description": "Recurso não localizado." },
+          "409": { "description": "Ação inválida pois o pedido não está com o status AGUARDANDO_PAGAMENTO" },
+          "422": { "description": "Dados obrigatórios ausentes." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
+    },
+    "/pedidos/{id}/status": {
+      "patch": {
+        "tags": ["Pedidos"],
+        "summary": "Atualizar Status do Pedido (Manual)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "novo_status": { "type": "string", "example": "PRONTO" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status atualizado com sucesso." },
+          "400": { "description": "Status fornecido fora do padrão ENUM do sistema." },
+          "401": { "description": "Usuário não autenticado tentando realizar a ação." },
+          "403": { "description": "Acesso negado (apenas funcionários)." },
+          "404": { "description": "Recurso não localizado." },
+          "422": { "description": "Dados obrigatórios ausentes." },
+          "500": { "description": "Erro interno para tentativas de quebrar o servidor." }
+        }
+      }
+    }
+  }
+}

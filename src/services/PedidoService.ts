@@ -15,6 +15,7 @@ import { UnidadeRepository } from '../repositories/UnidadeRepository';
 import { ErrorDescontoInvalido } from '../errors/ErrorDescontoInvalido';
 import { AuditoriaService } from './AuditoriaService';
 import { AcaoAuditoria } from '../enums/AcaoAuditoria';
+import { ErrorAcessoNegado } from '../errors/ErrorAcessoNegado';
 
 export class PedidoService {
     private pedidoRepository: PedidoRepository;
@@ -98,6 +99,22 @@ export class PedidoService {
 
     async obterTodos() {
         return await this.pedidoRepository.obterTodos();
+    };
+
+    async obterUm(dadosConsulta: any) {
+        const { id, usuario_logado, usuario_perfil } = dadosConsulta;
+
+        const pedido = await this.pedidoRepository.buscarPorId(Number(id));
+
+        if (!pedido) {
+            throw new ErrorNotFound("pedido", id);
+        };
+
+        if (usuario_perfil === PerfilUsuario.CLIENTE && pedido.cliente_id !== usuario_logado) {
+            throw new ErrorAcessoNegado();
+        };
+
+        return pedido;
     };
 
     private validarCanalPedido(canalPedido: any): void {

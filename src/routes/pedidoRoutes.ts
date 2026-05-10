@@ -16,6 +16,9 @@ pedidoRoutes
         verificarToken, 
         verificarPermissao([PerfilUsuario.GERENTE]), 
         pedidoController.obterTodos.bind(pedidoController))
+    .get('/:id',
+        verificarToken,
+        pedidoController.obterUm.bind(pedidoController))
     .patch('/:id/status', 
         verificarToken, 
         verificarPermissao([PerfilUsuario.COZINHA, PerfilUsuario.GERENTE, PerfilUsuario.ATENDENTE]), 

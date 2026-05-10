@@ -49,4 +49,22 @@ export class PedidoController {
             next(error);
         };
     };
+
+    async obterUm(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const dadosConsulta = {
+                id,
+                usuario_logado: req.usuario.id,
+                usuario_perfil: req.usuario.perfil
+            };
+
+            const pedidoService = new PedidoService();
+            const pedidoRetornado = await pedidoService.obterUm(dadosConsulta);
+
+            return res.status(200).json(pedidoRetornado);
+        } catch (error: any) {
+            next(error);
+        };
+    };
 };

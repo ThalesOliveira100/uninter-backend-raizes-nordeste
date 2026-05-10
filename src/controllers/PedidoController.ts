@@ -40,8 +40,12 @@ export class PedidoController {
 
     async obterTodos(req: Request, res: Response, next: NextFunction) {
         try {
+            const { canalPedido, status } = req.query;
             const pedidoService = new PedidoService();
-            const pedidos = await pedidoService.obterTodos();
+            const pedidos = await pedidoService.obterTodos(
+                canalPedido as string, 
+                status as string
+            );
             
             res.status(200).json(pedidos);
             

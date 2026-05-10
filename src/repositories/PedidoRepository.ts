@@ -56,7 +56,18 @@ export class PedidoRepository {
         })
     }
 
-    async obterTodos() {
-        return await prisma.pedido.findMany();
+    async obterTodos(canalPedido: string, status: string) {
+        return await prisma.pedido.findMany({
+            where: {
+                canalPedido: canalPedido ? canalPedido : undefined,
+                status: status ? status : undefined
+            },
+            include: {
+                itens: true
+            },
+            orderBy: {
+                data_criacao: 'desc'
+            }
+        });
     };
 };

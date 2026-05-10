@@ -71,7 +71,7 @@ export class PedidoService {
 
         if (!pedido_id || !novo_status || !usuario_id) {
             throw new ErrorDadosIncompletos([
-                { field: "pedido_id, novo_status, usuario_id", issue: "Ausentes" }
+                { field: "novo_status", issue: "Ausente ou em branco" }
             ]);
         };
 
@@ -97,8 +97,8 @@ export class PedidoService {
         return pedidoAtualizado;
     };
 
-    async obterTodos() {
-        return await this.pedidoRepository.obterTodos();
+    async obterTodos(canalPedido: string, status: string) {
+        return await this.pedidoRepository.obterTodos(canalPedido, status);
     };
 
     async obterUm(dadosConsulta: any) {

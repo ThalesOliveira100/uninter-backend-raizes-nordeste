@@ -1,0 +1,257 @@
+{
+  "info": {
+    "_postman_id": "74968701-46a9-4ead-a312-ea70ac024471",
+    "name": "API UNINTER EndPoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "17767280"
+  },
+  "item": [
+    {
+      "name": "API Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/ping",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "ping"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtem todos os pedidos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicGVyZmlsIjoiR0VSRU5URSIsImlhdCI6MTc3ODM4NzA3NCwiZXhwIjoxNzc4NDczNDc0fQ.O6GeTjV1xiylaMeNHj3X2VQ-mqvOsaOC99rW8yUlMjc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtem um pedido por ID",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Criar pedido válido",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODM3ODc4MiwiZXhwIjoxNzc4NDY1MTgyfQ.yRhhGoZdJH2vvvyOK2YdpYsVRRsf_p_EX3zTlhXzcQ4",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"canalPedido\": \"APP\",\r\n  \"cliente_id\": 2,\r\n  \"unidade_id\": 1,\r\n  \"itens\": [\r\n    {\r\n      \"produto_id\": 1,\r\n      \"quantidade\": 2\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwicGVyZmlsIjoiQ09aSU5IQSIsImlhdCI6MTc3ODI5OTM3OCwiZXhwIjoxNzc4Mzg1Nzc4fQ.182ftlpJ6pdO8Sm8hJWOrZeD9S9zB3UhsvqS9vHjMcU",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"novo_status\": \"AGUARDANDO_PAGAMENTO\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos/1/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Realizar login gerente",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODI5MzU3NiwiZXhwIjoxNzc4Mzc5OTc2fQ.Zthx6XB2K5yu9a5MhwRv1GXEWmFtaraY6sT1R99KwKs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"caixa@raizes.com\",\r\n    \"senha\": \"caixa1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Realizar pagamento de pedido",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicGVyZmlsIjoiR0VSRU5URSIsImlhdCI6MTc3ODM1MzQ3NSwiZXhwIjoxNzc4NDM5ODc1fQ.bazb-u-gQUP2YU9PoajWiGP_d-AHTf_3_gQyo2bA0ik",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"pedido_id\": 1,\r\n    \"forma_pagamento\": \"PIX\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pagamentos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pagamentos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Consultar estoque na unidade",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicGVyZmlsIjoiR0VSRU5URSIsImlhdCI6MTc3ODM5MTgyMiwiZXhwIjoxNzc4NDc4MjIyfQ.PPoJd2AlQkr97Vwxh45pwBY-8gco-Eiw8YKSjChhb-0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/estoque",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "estoque"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

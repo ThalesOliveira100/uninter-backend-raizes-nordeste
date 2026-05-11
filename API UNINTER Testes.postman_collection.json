@@ -1,0 +1,373 @@
+{
+  "info": {
+    "_postman_id": "5f921070-ab22-4bae-8794-7cf0719d428e",
+    "name": "API UNINTER Testes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "17767280"
+  },
+  "item": [
+    {
+      "name": "T01 - Login Válido Cliente",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"cliente@email.com\",\r\n    \"senha\": \"cli123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T02 - Login Válido Atendente",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"caixa@raizes.com\",\r\n    \"senha\": \"caixa123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T03 - (Negativo) Acesso sem token",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T04 - (Negativo) Acesso sem permissão",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T05 - (Negativo) Validação de campo obrigatório",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"cliente_id\": 2,\r\n  \"unidade_id\": \"\",\r\n  \"itens\": [\r\n    {\r\n      \"produto_id\": 1,\r\n      \"quantidade\": 2\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T06 - (Negativo) Produto Inexistente",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"canalPedido\": \"APP\",\r\n  \"cliente_id\": 2,\r\n  \"unidade_id\": 1,\r\n  \"itens\": [\r\n    {\r\n      \"produto_id\": 9999,\r\n      \"quantidade\": 1\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T07 - Criar Pedido Válido",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"canalPedido\": \"BALCAO\",\r\n  \"atendente_id\": 3,\r\n  \"cliente_id\": 2,\r\n  \"unidade_id\": 1,\r\n  \"itens\": [\r\n    {\r\n      \"produto_id\": 1,\r\n      \"quantidade\": 1,\r\n      \"preco_desconto\": 3.9\r\n    },\r\n    {\r\n        \"produto_id\": 2,\r\n        \"quantidade\": 1\r\n    },\r\n    {\r\n        \"produto_id\": 3,\r\n        \"quantidade\": 2\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T08 - Consultar Pedido",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/pedidos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pedidos",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T09 / T10 - Pagamento Mock (20% de chance de recusa)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwicGVyZmlsIjoiQ0xJRU5URSIsImlhdCI6MTc3ODUxMDY1NywiZXhwIjoxNzc4NTk3MDU3fQ.4-gVnM1POGl9M3M-4u2WnhRHQVSs4eY9q7TlXh-VV5w",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"pedido_id\": 1,\r\n    \"forma_pagamento\": \"PIX\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/pagamentos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "pagamentos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T11 - Consultar Estoque por Unidade",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicGVyZmlsIjoiR0VSRU5URSIsImlhdCI6MTc3ODUyNzE3MywiZXhwIjoxNzc4NjEzNTczfQ.ygZQB4mvwsTqhGXsPXOL6nnGuBrrYlQvss2KX2NlZQw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/estoque?unidade_id=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "estoque"
+          ],
+          "query": [
+            {
+              "key": "unidade_id",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

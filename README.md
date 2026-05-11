@@ -16,23 +16,23 @@ Antes de rodar o projeto, é necessário configurar as variáveis de ambiente:
 
 ## 📦 Instalação das Dependências
 Abra o terminal na pasta raiz do projeto e execute o comando abaixo para instalar todas as dependências:
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ## 🗄️ Criação do Banco de Dados e Seed
 Este projeto utiliza o Prisma ORM. Para criar as tabelas no banco de dados e popular os dados iniciais de teste (Unidades, Produtos, Estoques e Usuários), execute o seguinte comando:
-\`\`\`bash
+```bash
 npx prisma migrate reset
-\`\`\`
-Caso apareça uma mensagem em vermelho "All data will be lost" tecle y sem medo.
+```
+Caso apareça uma mensagem em vermelho `All data will be lost` tecle y sem medo.
 *(Este comando apagará dados antigos, rodará as migrations e executará o arquivo `seed.ts` automaticamente).*
 
 ## 🚀 Como Iniciar a API
 Com o banco configurado e atualizado, inicie o servidor em modo de desenvolvimento rodando:
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 O servidor estará rodando em: `http://localhost:3000/api`
 
 ## 📚 Acesso à Documentação (Swagger)
